@@ -152,6 +152,7 @@ class Downloader(object):
             self.pos += self.current_clip.duration
             self.clip += 1
             self.current_clip.close()
+            remove(self.current_clip.filename)
             self.current_clip = self._get_next_clip(self.paths[self.clip])
 
         return self.current_clip.get_frame(t - self.pos)
@@ -162,20 +163,20 @@ class Downloader(object):
         :param url: The URL to the next video fragment.
         :return: The video clip.
         """
-        with removable_tmp(suffix='.mp4') as video_tmp_file:
-            r = trying_get(url, self._max_attempts, self._wait)
-            with open(video_tmp_file, 'wb') as file:
-                file.write(r.content)
-            clip = VideoFileClip(video_tmp_file)
-            with removable_tmp(suffix='.wav') as audio_tmp_file:
-                clip.audio.write_audiofile(audio_tmp_file, logger=None)
-                with wave.open(audio_tmp_file, "rb") as w:
-                    try:
-                        self.audio_file.getparams()
-                    except wave.Error:
-                        self.audio_file.setparams(w.getparams())
-                    self.audio_file.writeframes(w.readframes(w.getnframes()))
-            return clip
+        video_tmp_file = mktemp('.mp4')
+        r = trying_get(url, self._max_attempts, self._wait)
+        with open(video_tmp_file, 'wb') as file:
+            file.write(r.content)
+        clip = VideoFileClip(video_tmp_file)
+        with removable_tmp(suffix='.wav') as audio_tmp_file:
+            clip.audio.write_audiofile(audio_tmp_file, logger=None)
+            with wave.open(audio_tmp_file, "rb") as w:
+                try:
+                    self.audio_file.getparams()
+                except wave.Error:
+                    self.audio_file.setparams(w.getparams())
+                self.audio_file.writeframes(w.readframes(w.getnframes()))
+        return clip
 
     def download(self, file: str) -> None:
         """ Download the video and write it to the specified file.
