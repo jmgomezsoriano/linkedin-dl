@@ -13,6 +13,7 @@ import proglog
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.video.VideoClip import VideoClip
 import requests
+from mysutils.file import remove_files
 from requests import Response
 from urllib3.exceptions import MaxRetryError
 from moviepy.editor import VideoFileClip
@@ -183,21 +184,23 @@ class Downloader(object):
 
         :param file: The name of the file to download the video.
         """
-        with removable_tmp(suffix='.mp4') as tmp:
-            clip = VideoClip(self._make_frame, False, self.duration)
-            clip.write_videofile(tmp, fps=self.fps, logger=proglog.TqdmProgressBarLogger(print_messages=False))
-            clip.close()
-            self.audio_file.close()
-            clip = VideoFileClip(tmp)
-            audio = AudioFileClip(self.wav_file)
-            clip.audio = audio
-            clip.write_videofile(file, logger=proglog.TqdmProgressBarLogger(print_messages=False))
-            clip.close()
+        tmp = mktemp('.mp4')
+        clip = VideoClip(self._make_frame, False, self.duration)
+        clip.write_videofile(tmp, fps=self.fps, logger=proglog.TqdmProgressBarLogger(print_messages=False))
+        clip.close()
+        self.audio_file.close()
+        clip = VideoFileClip(tmp)
+        audio = AudioFileClip(self.wav_file)
+        clip.audio = audio
+        clip.write_videofile(file, logger=proglog.TqdmProgressBarLogger(print_messages=False))
+        audio.close()
+        clip.close()
+        remove_files(tmp, self.wav_file)
 
     def close(self) -> None:
         """ Close this object and clean all the temporary files. """
         self.current_clip.close()
-        remove(self.wav_file)
+        self.audio_file.close()
 
     def __enter__(self):
         return self

@@ -43,13 +43,13 @@ optional arguments:
 ```
 
 Where _URL_ is the URL with the LinkedIn page that contain the video and
-_FILE_ is the path to the file to save the video locally.
+_FILE_ is the path to the file to save the video locally in mp4 format, any other format is supported.
 The rest of the arguments are optionals:
 
 * -m _NUMBER_ is the number of attempts to reconnect when the connection fails;
 * -w _SECONDS_ is the time in seconds to wait between each attempt in case of connection fail;
 * -l _SECONDS_ is the limit of time in seconds to download, by default, all the video is downloaded.
-* -q _QUALITY_ is the video quality to download, by default, it is the maximum, the available values are:
+* -q _QUALITY_ is the video quality to download. By default, it is the maximum. The available values are:
   * 128000
   * 400000
   * 800000
