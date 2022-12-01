@@ -40,7 +40,7 @@ setuptools.setup(
         'prepublish': PrepublishCommand,
     },
     name='linkedin-dl',
-    version='0.0.7',
+    version='0.0.8',
     url='https://github.com/jmgomezsoriano/linkedin-dl',
     license='LGPL2',
     author='José Manuel Gómez Soriano',
